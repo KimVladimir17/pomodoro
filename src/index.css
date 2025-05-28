@@ -1,0 +1,177 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  list-style: none;
+  text-align: center;
+  background: #f8f8f9;
+}
+
+.container {
+  max-width: 500px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.tasks-blog {
+  margin: 50px auto 0;
+  font-size: 12px;
+}
+
+.new-task {
+  border: 2px solid #dcdddb;
+  border-radius: 5px;
+}
+
+.new-task,
+button,
+p,
+.task-titles,
+.task-item,
+input {
+  background: white;
+}
+
+.tasks-blog h1 {
+  margin-bottom: 25px;
+}
+
+
+
+.tasks-blog input {
+  text-align: start;
+  height: 100%;
+  width: 80px;
+  margin: 15px 10px;
+  padding: 5px;
+  border-radius: 5px;
+  border: 2px solid #dcdddb;
+}
+
+.tasks-blog input:first-child {
+  width: 120px;
+}
+
+.tasks-blog button {
+  height: 100%;
+  background: #2c6dc4;
+  padding: 5px;
+  width: 80px;
+  border: 2px solid #2e6cc5;
+  color: white;
+  margin-left: 10px;
+}
+
+.task-board {
+  margin: 50px auto;
+  justify-content: center;
+  display: flex;
+  border: 2px solid #dcdddb;
+  flex-direction: column;
+}
+
+.task-titles {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.task-item {
+  /* padding: 10px; */
+  border-top: 1px solid #dcdddb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+}
+
+.task-item p,
+.task-item button {
+  padding: 10px;
+}
+
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  border-radius: 5px;
+}
+
+
+
+.task-button::after {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  top: 0;
+  left: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: green;
+  color: white;
+  content: 'start';
+  transform: scale(0%)
+}
+
+.task-button.disabled::after {
+  display: none;
+}
+
+.task-button.active::after {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  top: 0;
+  left: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: red;
+  color: white;
+  content: 'stop';
+  transform: scale(0%)
+}
+
+.task-button:hover:after {
+  animation: slide 0.4s forwards;
+}
+
+@keyframes slide {
+  0% {
+    transform: scale(0%)
+  }
+
+  100% {
+    transform: scale(100%)
+  }
+}
+
+.timer {
+  border-top: 2px solid #dcdddb;
+
+  background: white;
+}
+
+
+.timer p {
+  padding-top: 15px;
+  font-size: 20px;
+
+}
+
+.timer p:last-child {
+  padding-bottom: 15px;
+}
+
+.timer-toggle {
+  background: white;
+  font-size: 15px;
+  width: 100px;
+}
