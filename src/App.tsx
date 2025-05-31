@@ -1,88 +1,101 @@
-import "./App.css";
-import React, { use, useEffect, useState } from "react";
-import Task from "./Task";
-import Timer from "./Timer";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-
-export type TaskStatus = "pending" | "running" | "completed";
-
-interface Tasks {
-  id: string;
-  title: string;
-  time: number;
-  status: TaskStatus;
-}
+import { Tasks, TaskStatus } from "./types/typeTask";
+import Timer from "./Timer";
 
 function App() {
-  const [tasks, setTasks] = useState<Tasks[]>([
-    {
-      id: uuidv4(),
-      title: "Example",
-      time: 25,
-      status: "pending",
-    },
-    {
-      id: uuidv4(),
-      title: "Example2",
-      time: 50,
-      status: "pending",
-    },
-    { id: uuidv4(), title: "Example3", time: 5, status: "pending" },
-  ]);
-  const [taskTitle, setTaskTitle] = useState<string>("");
-  const [taskMinutes, setTaskMinutes] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const [runningTaskId, setRunningTaskId] = useState<string | null>(null);
+  const [tasks, setTasks] = useState<Tasks[]>([]);
+  const [taskInput, setTaskInput] = useState({ title: "", time: "" });
+  const [errorMessage, setErrorMessage] = useState("");
   const [currentTask, setCurrentTask] = useState<Tasks | null>(null);
   const [isRunning, setIsRunning] = useState(false);
 
   useEffect(() => {
-    if (!isRunning) {
-      setRunningTaskId(null);
-      setCurrentTask(null);
-    }
-  }, [isRunning]);
+    if (!isRunning || !currentTask) return;
+    const intervalId = setInterval(() => {
+      setTasks((prevTasks) =>
+        prevTasks.map((task) => {
+          if (task.id === currentTask.id && task.timeLeft > 0) {
+            const updated = task.timeLeft - 1;
+            if (updated === 0) {
+              setIsRunning(false);
+              handleChangeTaskStatus(task.id, "completed");
+            }
+            return { ...task, timeLeft: updated };
+          }
+          return task;
+        })
+      );
+    }, 1000);
+    return () => clearInterval(intervalId);
+  }, [isRunning, currentTask]);
 
   const handleAddTask = () => {
-    if (taskTitle && taskMinutes) {
+    const { title, time } = taskInput;
+    if (title && time) {
+      const minutes = Number(time);
       const newTask: Tasks = {
         id: uuidv4(),
-        title: taskTitle,
-        time: Number(taskMinutes),
+        title,
+        time: minutes,
+        timeLeft: minutes * 60,
         status: "pending",
       };
       setTasks([...tasks, newTask]);
-      setTaskTitle("");
-      setTaskMinutes("");
+      setTaskInput({ title: "", time: "" });
       setErrorMessage("");
     } else {
-      setErrorMessage("Please enter a task title and minutes.");
+      setErrorMessage("Please enter title and minutes");
     }
   };
 
-  const handleChangeTaskStatus = (id: string, newStatus: TaskStatus) => {
-    if (newStatus === "running") {
-      setRunningTaskId(id);
-      const selectedTask = tasks.find((task) => task.id === id);
-      if (selectedTask) setCurrentTask(selectedTask);
+  useEffect(() => {
+    if (currentTask) {
+      const uptadet = tasks.find((t) => t.id === currentTask.id);
+      if (uptadet) setCurrentTask(uptadet);
+    }
+  }, [tasks]);
+
+  const handleChangeTaskStatus = (id: string, status: TaskStatus) => {
+    if (status === "running") {
+      const found = tasks.find((t) => t.id === id);
+      if (found) {
+        setTasks((prev) =>
+          prev.map((task) =>
+            task.id === id
+              ? { ...task, status: "running", timeLeft: task.time * 60 }
+              : task.status !== "completed"
+              ? { ...task, status: "pending" }
+              : task
+          )
+        );
+        setCurrentTask({ ...found, timeLeft: found.time * 60 });
+        setIsRunning(true);
+      }
+    } else if (status === "pending") {
       setTasks((prev) =>
         prev.map((task) =>
-          task.id === id && task.status !== "completed"
-            ? { ...task, status: "running" }
-            : task.status === "completed"
-            ? task
-            : { ...task, status: "pending" }
-        )
-      );
-      setIsRunning(true);
-    } else {
-      setTasks((prev) =>
-        prev.map((task) =>
-          task.id === id ? { ...task, status: newStatus } : task
+          task.id === id
+            ? { ...task, status: "pending", timeLeft: task.time * 60 }
+            : task
         )
       );
       setIsRunning(false);
+      setCurrentTask(null);
+    } else if (status === "completed") {
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === id ? { ...task, status: "completed" } : task
+        )
+      );
+      setIsRunning(false);
+      setCurrentTask(null);
     }
+  };
+  const formatTime = (sec: number): string => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${String(m)} min ${String(s).padStart(2, "0")} sec`;
   };
 
   return (
@@ -95,15 +108,19 @@ function App() {
               type="text"
               id="taskTitle"
               placeholder="Task Title"
-              value={taskTitle}
-              onChange={(e) => setTaskTitle(e.target.value)}
+              value={taskInput.title}
+              onChange={(e) =>
+                setTaskInput({ ...taskInput, title: e.target.value })
+              }
             />
             <input
               type="number"
               id="taskMinutes"
-              placeholder="minute"
-              value={taskMinutes}
-              onChange={(e) => setTaskMinutes(e.target.value)}
+              placeholder="Minute"
+              value={taskInput.time}
+              onChange={(e) =>
+                setTaskInput({ ...taskInput, time: e.target.value })
+              }
             />
             <button onClick={handleAddTask}>Add Task</button>
             {errorMessage && (
@@ -120,30 +137,33 @@ function App() {
             <p>Status</p>
           </div>
           {tasks.map((task) => (
-            <Task
-              key={task.id}
-              id={task.id}
-              name={task.title}
-              minute={task.time}
-              status={task.status}
-              onChangeStatus={(newStatus: TaskStatus) =>
-                handleChangeTaskStatus(task.id, newStatus)
-              }
-              isRunning={runningTaskId === task.id}
-            />
+            <li className="task-item" key={task.id}>
+              <p>{task.title}</p>
+              {task.status === "running" ? (
+                <p className="task-timer">{formatTime(task.timeLeft)}</p>
+              ) : (
+                <p>{task.time} min</p>
+              )}
+              <button
+                className={`task-button ${
+                  task.id === currentTask?.id ? "active" : ""
+                } ${task.status === "completed" && "disabled"}`}
+                disabled={task.status === "completed"}
+                onClick={() =>
+                  handleChangeTaskStatus(
+                    task.id,
+                    task.status === "running" ? "pending" : "running"
+                  )
+                }
+              >
+                {task.status}
+              </button>
+            </li>
           ))}
           <Timer
-            initialTime={currentTask?.time || 0}
-            taskName={currentTask?.title || "No Task Selected"}
+            timeLeft={currentTask?.timeLeft || 0}
+            taskName={currentTask?.title || "No active task"}
             isRunning={isRunning}
-            setIsRunning={(isRunning) => {
-              if (!isRunning) setRunningTaskId(null);
-            }}
-            onChangeStatus={(status) => {
-              if (status === "completed" && currentTask) {
-                handleChangeTaskStatus(currentTask.id, "completed");
-              }
-            }}
           />
         </div>
       </div>

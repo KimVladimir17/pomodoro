@@ -78,7 +78,6 @@ input {
 }
 
 .task-item {
-  /* padding: 10px; */
   border-top: 1px solid #dcdddb;
   display: flex;
   justify-content: space-between;
