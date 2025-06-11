@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Tasks, TaskStatus } from "./types/typeTask";
+import { Tasks, TaskStatus } from "./types/Task";
 import Timer from "./Timer";
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
   useEffect(() => {
     if (!isRunning || !currentTask) return;
     const intervalId = setInterval(() => {
-      setTasks((prevTasks) =>
+      setTasks((prevTasks: Tasks[]) =>
         prevTasks.map((task) => {
           if (task.id === currentTask.id && task.timeLeft > 0) {
             const updated = task.timeLeft - 1;
@@ -32,8 +32,14 @@ function App() {
 
   const handleAddTask = () => {
     const { title, time } = taskInput;
+
     if (title && time) {
       const minutes = Number(time);
+      if (minutes < 0) {
+        alert("Time should not be negative");
+        setTaskInput({ title: "", time: "" });
+        return;
+      }
       const newTask: Tasks = {
         id: uuidv4(),
         title,
@@ -136,34 +142,36 @@ function App() {
             <p>Duration (minutes)</p>
             <p>Status</p>
           </div>
-          {tasks.map((task) => (
-            <li className="task-item" key={task.id}>
-              <p>{task.title}</p>
-              {task.status === "running" ? (
-                <p className="task-timer">{formatTime(task.timeLeft)}</p>
-              ) : (
-                <p>{task.time} min</p>
-              )}
-              <button
-                className={`task-button ${
-                  task.id === currentTask?.id ? "active" : ""
-                } ${task.status === "completed" && "disabled"}`}
-                disabled={task.status === "completed"}
-                onClick={() =>
-                  handleChangeTaskStatus(
-                    task.id,
-                    task.status === "running" ? "pending" : "running"
-                  )
-                }
-              >
-                {task.status}
-              </button>
-            </li>
-          ))}
+          <ul className="task-list">
+            {tasks.map((task: Tasks) => (
+              <li className="task-item" key={task.id}>
+                <p>{task.title}</p>
+                {task.status === "running" ? (
+                  <p className="task-timer">{formatTime(task.timeLeft)}</p>
+                ) : (
+                  <p>{task.time} min</p>
+                )}
+                <button
+                  className={`task-button ${
+                    task.id === currentTask?.id ? "active" : ""
+                  } ${task.status === "completed" && "disabled"}`}
+                  disabled={task.status === "completed"}
+                  onClick={() =>
+                    handleChangeTaskStatus(
+                      task.id,
+                      task.status === "running" ? "pending" : "running"
+                    )
+                  }
+                >
+                  {task.status}
+                </button>
+              </li>
+            ))}
+          </ul>
           <Timer
-            timeLeft={currentTask?.timeLeft || 0}
             taskName={currentTask?.title || "No active task"}
             isRunning={isRunning}
+            counterStart={formatTime(currentTask?.timeLeft || 0)}
           />
         </div>
       </div>

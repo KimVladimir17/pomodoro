@@ -8,4 +8,9 @@ interface Tasks {
   status: TaskStatus;
 }
 
-export type { TaskStatus, Tasks };
+type TimerProps = {
+  taskName: string;
+  isRunning: boolean;
+  counterStart: string;
+};
+export type { TaskStatus, Tasks, TimerProps };
