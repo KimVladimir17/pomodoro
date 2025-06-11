@@ -104,6 +104,13 @@ function App() {
     return `${String(m)} min ${String(s).padStart(2, "0")} sec`;
   };
 
+  const getButtonClass = (task: Tasks, currentTask?: Tasks | null) => {
+    let classes = ["task-button"];
+    if (task.id === currentTask?.id) classes.push("active");
+    if (task.status === "completed") classes.push("disabled");
+    return classes.join(" ");
+  };
+
   return (
     <div className="App">
       <div className="container">
@@ -152,9 +159,7 @@ function App() {
                   <p>{task.time} min</p>
                 )}
                 <button
-                  className={`task-button ${
-                    task.id === currentTask?.id ? "active" : ""
-                  } ${task.status === "completed" && "disabled"}`}
+                  className={getButtonClass(task, currentTask)}
                   disabled={task.status === "completed"}
                   onClick={() =>
                     handleChangeTaskStatus(
