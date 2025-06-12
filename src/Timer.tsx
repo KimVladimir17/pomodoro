@@ -1,4 +1,8 @@
-import { TimerProps } from "./types/Task";
+type TimerProps = {
+  taskName: string;
+  isRunning: boolean;
+  counterStart: string;
+};
 
 const Timer = ({ taskName, isRunning, counterStart }: TimerProps) => {
   return (

@@ -3,9 +3,11 @@ import { v4 as uuidv4 } from "uuid";
 import { Tasks, TaskStatus } from "./types/Task";
 import Timer from "./Timer";
 
+let DEFAULT_INPUT = { title: "", time: "" };
+
 function App() {
   const [tasks, setTasks] = useState<Tasks[]>([]);
-  const [taskInput, setTaskInput] = useState({ title: "", time: "" });
+  const [taskInput, setTaskInput] = useState(DEFAULT_INPUT);
   const [errorMessage, setErrorMessage] = useState("");
   const [currentTask, setCurrentTask] = useState<Tasks | null>(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -37,7 +39,7 @@ function App() {
       const minutes = Number(time);
       if (minutes < 0) {
         alert("Time should not be negative");
-        setTaskInput({ title: "", time: "" });
+        setTaskInput(DEFAULT_INPUT);
         return;
       }
       const newTask: Tasks = {
@@ -48,7 +50,7 @@ function App() {
         status: "pending",
       };
       setTasks([...tasks, newTask]);
-      setTaskInput({ title: "", time: "" });
+      setTaskInput(DEFAULT_INPUT);
       setErrorMessage("");
     } else {
       setErrorMessage("Please enter title and minutes");
