@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Tasks, TaskStatus } from "./types/Task";
+import { Tasks, TaskStatus } from "./types/task";
 import Timer from "./Timer";
 
 let DEFAULT_INPUT = { title: "", time: "" };
